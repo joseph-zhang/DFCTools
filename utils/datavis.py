@@ -17,7 +17,7 @@ parser.add_argument("--dataset_dir",   type=str,  required=True,        help="th
 parser.add_argument("--output_dir",    type=str,  default="./gtShow",   help="the dir to save shown gt images")
 parser.add_argument("--cmap_method" ,  type=str,  default="jet",        help="the color method for cmap")
 parser.add_argument("--check_mode",    type=str,  default="vis",        help="visual or statistics: ['vis', 'sta']")
-parser.add_argument("--sta_mode",      type=str,  default="high",       help="select from: ['total', 'high']")
+parser.add_argument("--sta_mode",      type=str,  default="total",      help="select from: ['total', 'high']")
 args = parser.parse_args()
 
 
@@ -60,20 +60,29 @@ def study_gt(flist):
 
     if args.sta_mode == 'high':
         glob_arr = glob_arr[glob_arr >= 2.]
+    else:
+        pass
 
     print("Getting data info ...")
     glob_min, glob_max, glob_mean = map(lambda arr: np.round(arr, decimals=2), [np.min(glob_arr), np.max(glob_arr), np.mean(glob_arr)])
     plt.rc('text', usetex=True)
     plt.rc('font', family='serif')
-    n, bins, patches = plt.hist(x=glob_arr, bins='auto', color='#0504aa', alpha=0.7, rwidth=0.85)
+
+    if args.sta_mode == 'total':
+        n, bins, patches = plt.hist(x=glob_arr, bins=200, color='#0504aa', alpha=0.7, rwidth=0.85)
+    elif args.sta_mode == 'high':
+        n, bins, patches = plt.hist(x=glob_arr, bins='auto', color='#0504aa', alpha=0.7, rwidth=0.85)
+    else:
+        pass
+
     plt.grid(axis='y', alpha=0.85)
     plt.xlabel('Height range')
     plt.ylabel('Frequency')
 
     if args.sta_mode == 'total':
-        plt.title("Histogram of DFC $\\rightarrow$ $\mu:$ {:.2f}, min: {:.2f}, max: {:.2f}".format(glob_mean, glob_min, glob_max))
+        plt.title("DFC Height $\\rightarrow$ $\mu:$ {:.2f}, min: {:.2f}, max: {:.2f}".format(glob_mean, glob_min, glob_max))
     elif args.sta_mode == 'high':
-        plt.title("DFC Height $(>2)$ $\\rightarrow$ $\mu:$ {:.2f}, min: {:.2f}, max: {:.2f}".format(glob_mean, glob_min, glob_max))
+        plt.title("DFC Height $(\\geq 2)$ $\\rightarrow$ $\mu:$ {:.2f}, min: {:.2f}, max: {:.2f}".format(glob_mean, glob_min, glob_max))
     else:
         pass
 
